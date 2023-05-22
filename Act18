@@ -1,0 +1,75 @@
+Clases que definen el modelo de la BD:
+Supongamos que estamos creando una base de datos para una tienda en línea con productos y categorías. Aquí tienes las definiciones de las clases con las restricciones en los atributos utilizando anotaciones en los datos:
+csharp
+Copy code
+public class Producto
+{
+    [Key]
+    public int ProductoId { get; set; }
+
+    [Required]
+    public string Nombre { get; set; }
+
+    [Required]
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal Precio { get; set; }
+
+    [ForeignKey("Categoria")]
+    public int CategoriaId { get; set; }
+
+    public virtual Categoria Categoria { get; set; }
+}
+
+public class Categoria
+{
+    [Key]
+    public int CategoriaId { get; set; }
+
+    [Required]
+    public string Nombre { get; set; }
+
+    public virtual ICollection<Producto> Productos { get; set; }
+}
+En el ejemplo anterior, la clase Producto tiene una clave primaria (ProductoId) anotada con [Key]. Los atributos Nombre y Precio tienen restricciones de no nulos ([Required]). Además, se utiliza la anotación [Column(TypeName = "decimal(18,2)")] para especificar el tipo de columna en la base de datos.
+
+La clase Categoria también tiene una clave primaria (CategoriaId) anotada con [Key]. El atributo Nombre tiene la restricción de no nulo ([Required]). La colección Productos establece una relación de navegación con la clase Producto.
+
+Clase que define el contexto de la BD (DbContext):
+Aquí está la definición de la clase que define el contexto de la base de datos:
+csharp
+Copy code
+public class TuDbContext : DbContext
+{
+    public TuDbContext(DbContextOptions<TuDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<Producto> Productos { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
+}
+En esta clase, heredamos de DbContext y definimos las propiedades Productos y Categorias como DbSet. El constructor toma un objeto DbContextOptions<TuDbContext> como parámetro para configurar las opciones del contexto de la base de datos.
+
+Definición de la cadena de conexión (appsettings.json):
+En el archivo appsettings.json, puedes agregar una sección ConnectionStrings con la cadena de conexión para la base de datos. Aquí tienes un ejemplo genérico:
+json
+Copy code
+{
+  "ConnectionStrings": {
+    "TuConexionDB": "Server=NOMBRE_SERVIDOR;Database=NOMBRE_BD;User Id=USUARIO;Password=CONTRASEÑA;"
+  }
+}
+Asegúrate de reemplazar "NOMBRE_SERVIDOR", "NOMBRE_BD", "USUARIO" y "CONTRASEÑA" con los valores correspondientes a tu entorno.
+
+Creación de la migración requerida para la creación de la BD:
+Para crear una migración, puedes utilizar el siguiente comando en la terminal o en el símbolo del sistema:
+csharp
+Copy code
+dotnet ef migrations add CrearBD
+Esto generará una nueva migración llamada "CrearBD". Puedes proporcionar un nombre diferente si lo deseas.
+
+Creación de la BD en SQL Server:
+Una vez que tengas la migración generada, puedes aplicarla para crear la base de datos. Utiliza el siguiente comando:
+sql
+Copy code
+dotnet ef database update
+Esto aplicará la migración y creará la base de datos en el servidor SQL Server configurado en tu cadena de conexión.
